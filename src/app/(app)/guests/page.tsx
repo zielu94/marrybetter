@@ -39,6 +39,9 @@ export default async function GuestsPage() {
     seatingTableName: g.seatingTable?.name ?? null,
     householdId: g.householdId,
     householdName: g.household?.name ?? null,
+    invitationToken: g.invitationToken ?? null,
+    tokenCreatedAt: g.tokenCreatedAt?.toISOString() ?? null,
+    rsvpRespondedAt: g.rsvpRespondedAt?.toISOString() ?? null,
   }));
 
   const households = (project.households ?? []).map((h) => ({
@@ -47,5 +50,5 @@ export default async function GuestsPage() {
     guestIds: h.guests.map((g) => g.id),
   }));
 
-  return <GuestPageClient guests={guests} projectId={project.id} households={households} />;
+  return <GuestPageClient guests={guests} projectId={project.id} households={households} slug={project.slug ?? null} />;
 }

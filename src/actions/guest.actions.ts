@@ -27,6 +27,14 @@ export async function getGuestsData(userId: string) {
   });
 }
 
+export async function getProjectSlug(userId: string) {
+  const project = await prisma.weddingProject.findUnique({
+    where: { userId },
+    select: { slug: true, isPublicWebsite: true },
+  });
+  return project;
+}
+
 // ── Guest CRUD ─────────────────────────────────────
 
 export async function createGuest(formData: FormData) {

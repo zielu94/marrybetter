@@ -10,7 +10,8 @@ export default auth((req) => {
 
   const isAuthRoute = ["/login", "/register"].includes(nextUrl.pathname);
   const isOnboardingRoute = nextUrl.pathname === "/onboarding";
-  const isPublicRoute = ["/", "/pricing"].includes(nextUrl.pathname);
+  const isPublicRoute = ["/", "/pricing"].includes(nextUrl.pathname)
+    || nextUrl.pathname.startsWith("/w/");
   const isApiAuthRoute = nextUrl.pathname.startsWith("/api/auth");
 
   if (isApiAuthRoute) return;

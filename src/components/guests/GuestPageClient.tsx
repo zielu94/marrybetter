@@ -19,6 +19,10 @@ import {
   importGuestsFromCSV,
 } from "@/actions/guest.actions";
 import {
+  generateInvitationToken,
+  bulkGenerateTokens,
+} from "@/actions/rsvp.actions";
+import {
   GUEST_SOURCE_LABELS,
   GUEST_CATEGORY_LABELS,
   GUEST_ROLE_LABELS,
@@ -59,6 +63,9 @@ interface Guest {
   seatingTableName: string | null;
   householdId: string | null;
   householdName: string | null;
+  invitationToken: string | null;
+  tokenCreatedAt: string | null;
+  rsvpRespondedAt: string | null;
 }
 
 interface Household {
@@ -71,6 +78,7 @@ interface GuestPageClientProps {
   guests: Guest[];
   projectId: string;
   households: Household[];
+  slug: string | null;
 }
 
 // ── Constants ─────────────────────────────────────
@@ -102,7 +110,7 @@ const DIET_ICONS: Record<string, string> = {
 
 // ── Column Config ─────────────────────────────────
 
-type ColumnKey = "rsvp" | "type" | "household" | "category" | "diet" | "table" | "contact" | "weddingParty";
+type ColumnKey = "rsvp" | "link" | "type" | "household" | "category" | "diet" | "table" | "contact" | "weddingParty";
 
 interface ColumnDef {
   key: ColumnKey;
@@ -112,6 +120,7 @@ interface ColumnDef {
 
 const ALL_COLUMNS: ColumnDef[] = [
   { key: "rsvp", label: "RSVP", defaultVisible: true },
+  { key: "link", label: "Einladungslink", defaultVisible: true },
   { key: "type", label: "Typ", defaultVisible: true },
   { key: "household", label: "Haushalt", defaultVisible: true },
   { key: "category", label: "Gruppe", defaultVisible: true },
@@ -123,7 +132,7 @@ const ALL_COLUMNS: ColumnDef[] = [
 
 // ── Main Component ────────────────────────────────
 
-export default function GuestPageClient({ guests, projectId, households }: GuestPageClientProps) {
+export default function GuestPageClient({ guests, projectId, households, slug }: GuestPageClientProps) {
   // UI state
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAddWizard, setShowAddWizard] = useState(false);
@@ -349,6 +358,27 @@ export default function GuestPageClient({ guests, projectId, households }: Guest
       if (next.has(key)) next.delete(key); else next.add(key);
       return next;
     });
+  }
+
+  async function handleGenerateLink(guestId: string) {
+    const token = await generateInvitationToken(guestId);
+    if (token && slug) {
+      const link = `${window.location.origin}/w/${slug}/rsvp?token=${token}`;
+      await navigator.clipboard.writeText(link);
+    }
+  }
+
+  async function handleBulkGenerateLinks() {
+    const ids = Array.from(selectedIds);
+    const count = await bulkGenerateTokens(ids);
+    setSelectedIds(new Set());
+    setShowBulkMenu(false);
+  }
+
+  function copyInvitationLink(token: string) {
+    if (!slug) return;
+    const link = `${window.location.origin}/w/${slug}/rsvp?token=${token}`;
+    navigator.clipboard.writeText(link);
   }
 
   async function handleCsvImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -748,6 +778,11 @@ export default function GuestPageClient({ guests, projectId, households }: Guest
                 Haushalt gruppieren
               </button>
             )}
+            {slug && (
+              <button onClick={handleBulkGenerateLinks} className="px-2.5 py-1 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+                Links erstellen
+              </button>
+            )}
             <button onClick={() => handleBulkAction("MARK_INVITED")} className="px-2.5 py-1 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
               Als eingeladen markieren
             </button>
@@ -784,6 +819,7 @@ export default function GuestPageClient({ guests, projectId, households }: Guest
                 </th>
                 <th className="text-left text-[11px] font-medium text-text-faint uppercase tracking-wider p-3">Name</th>
                 {visibleColumns.has("rsvp") && <th className="text-left text-[11px] font-medium text-text-faint uppercase tracking-wider p-3">RSVP</th>}
+                {visibleColumns.has("link") && <th className="text-left text-[11px] font-medium text-text-faint uppercase tracking-wider p-3 hidden sm:table-cell">Link</th>}
                 {visibleColumns.has("type") && <th className="text-left text-[11px] font-medium text-text-faint uppercase tracking-wider p-3 hidden sm:table-cell">Typ</th>}
                 {visibleColumns.has("household") && <th className="text-left text-[11px] font-medium text-text-faint uppercase tracking-wider p-3 hidden md:table-cell">Haushalt</th>}
                 {visibleColumns.has("category") && <th className="text-left text-[11px] font-medium text-text-faint uppercase tracking-wider p-3 hidden md:table-cell">Gruppe</th>}
@@ -826,6 +862,16 @@ export default function GuestPageClient({ guests, projectId, households }: Guest
                     {visibleColumns.has("rsvp") && (
                       <td className="p-3" onClick={(e) => e.stopPropagation()}>
                         <RsvpChip guestId={guest.id} rsvpStatus={guest.rsvpStatus} onChange={handleRsvpChange} />
+                      </td>
+                    )}
+                    {visibleColumns.has("link") && (
+                      <td className="p-3 hidden sm:table-cell" onClick={(e) => e.stopPropagation()}>
+                        <InvitationLinkCell
+                          guest={guest}
+                          slug={slug}
+                          onGenerate={handleGenerateLink}
+                          onCopy={copyInvitationLink}
+                        />
                       </td>
                     )}
                     {visibleColumns.has("type") && (
@@ -1024,6 +1070,70 @@ function RsvpChip({ guestId, rsvpStatus, onChange }: { guestId: string; rsvpStat
         </>
       )}
     </div>
+  );
+}
+
+// ── Invitation Link Cell ─────────────────────────
+
+function InvitationLinkCell({ guest, slug, onGenerate, onCopy }: {
+  guest: Guest;
+  slug: string | null;
+  onGenerate: (guestId: string) => void;
+  onCopy: (token: string) => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  if (!slug) {
+    return <span className="text-[11px] text-text-faint">Slug fehlt</span>;
+  }
+
+  if (guest.invitationToken) {
+    return (
+      <button
+        onClick={async () => {
+          onCopy(guest.invitationToken!);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }}
+        className={`inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-medium rounded-full transition-colors ${
+          guest.rsvpRespondedAt
+            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+            : "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400"
+        }`}
+        title="Link kopieren"
+      >
+        {copied ? (
+          <>
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Kopiert
+          </>
+        ) : (
+          <>
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            {guest.rsvpRespondedAt ? "Beantwortet" : "Kopieren"}
+          </>
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={async () => {
+        setGenerating(true);
+        await onGenerate(guest.id);
+        setGenerating(false);
+      }}
+      disabled={generating}
+      className="text-[11px] text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 font-medium transition-colors disabled:opacity-50"
+    >
+      {generating ? "..." : "+ Link"}
+    </button>
   );
 }
 

@@ -78,6 +78,13 @@ model WeddingProject {
   sidebarConfig  String  @default("{}")
   theme          String  @default("light")
 
+  // Public wedding website
+  slug                 String?   @unique
+  isPublicWebsite      Boolean   @default(false)
+  websiteHeroImage     String?
+  websiteStory         String?
+  websiteAccommodation String?
+
   user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   budgetCategories   BudgetCategory[]
   tasks              Task[]
@@ -197,6 +204,9 @@ model Guest {
   isWeddingParty   Boolean  @default(false)
   seatingTableId   String?
   seatNumber       Int?
+  invitationToken  String?   @unique
+  tokenCreatedAt   DateTime?
+  rsvpRespondedAt  DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

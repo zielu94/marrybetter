@@ -33,6 +33,11 @@ export default async function SettingsPage() {
       guestCountTarget: true,
       sidebarConfig: true,
       theme: true,
+      slug: true,
+      isPublicWebsite: true,
+      websiteStory: true,
+      websiteAccommodation: true,
+      websiteHeroImage: true,
     },
   });
 
@@ -52,6 +57,11 @@ export default async function SettingsPage() {
       guestCountTarget={project?.guestCountTarget ?? 0}
       sidebarConfigRaw={project?.sidebarConfig ?? "{}"}
       theme={project?.theme ?? "light"}
+      slug={project?.slug ?? ""}
+      isPublicWebsite={project?.isPublicWebsite ?? false}
+      websiteStory={project?.websiteStory ?? ""}
+      websiteAccommodation={project?.websiteAccommodation ?? ""}
+      websiteHeroImage={project?.websiteHeroImage ?? ""}
       supportMessages={supportMessages.map((m) => ({
         id: m.id,
         subject: m.subject,

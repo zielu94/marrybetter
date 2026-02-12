@@ -14,6 +14,7 @@ import {
   updateTheme,
   sendSupportMessage,
 } from "@/actions/settings.actions";
+import { updateWebsiteSettings, generateSlug } from "@/actions/wedding-website.actions";
 import { parseSidebarConfig, stringifySidebarConfig, CONFIGURABLE_PAGES, type SidebarConfig } from "@/lib/sidebar-config";
 import { useTheme } from "@/providers/ThemeProvider";
 
@@ -42,12 +43,17 @@ interface SettingsPageClientProps {
   guestCountTarget: number;
   sidebarConfigRaw: string;
   theme: string;
+  slug: string;
+  isPublicWebsite: boolean;
+  websiteStory: string;
+  websiteAccommodation: string;
+  websiteHeroImage: string;
   supportMessages: SupportMessageData[];
 }
 
 // ── Tab Type ────────────────────────────────────────
 
-type SettingsTab = "account" | "wedding" | "sidebar" | "support" | "billing";
+type SettingsTab = "account" | "wedding" | "website" | "sidebar" | "support" | "billing";
 
 const TABS: { key: SettingsTab; label: string; icon: React.ReactNode }[] = [
   {
@@ -65,6 +71,15 @@ const TABS: { key: SettingsTab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    ),
+  },
+  {
+    key: "website",
+    label: "Webseite",
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
       </svg>
     ),
   },
@@ -170,6 +185,9 @@ export default function SettingsPageClient({
   projectId, weddingDate, hasNoDate: initialHasNoDate, location,
   currency: initialCurrency, guestCountTarget: initialGuestCountTarget,
   sidebarConfigRaw, theme: _initialTheme,
+  slug: initialSlug, isPublicWebsite: initialIsPublic,
+  websiteStory: initialStory, websiteAccommodation: initialAccommodation,
+  websiteHeroImage: initialHeroImage,
   supportMessages: initialSupportMessages,
 }: SettingsPageClientProps) {
   const [activeTab, setActiveTab] = useState<SettingsTab>("account");
@@ -190,6 +208,16 @@ export default function SettingsPageClient({
   const [weddingError, setWeddingError] = useState<string | null>(null);
   const [weddingSuccess, setWeddingSuccess] = useState<string | null>(null);
   const [weddingPending, setWeddingPending] = useState(false);
+
+  // ── Website state ──
+  const [wsSlug, setWsSlug] = useState(initialSlug);
+  const [wsIsPublic, setWsIsPublic] = useState(initialIsPublic);
+  const [wsStory, setWsStory] = useState(initialStory);
+  const [wsAccommodation, setWsAccommodation] = useState(initialAccommodation);
+  const [wsHeroImage, setWsHeroImage] = useState(initialHeroImage);
+  const [wsPending, setWsPending] = useState(false);
+  const [wsError, setWsError] = useState<string | null>(null);
+  const [wsSuccess, setWsSuccess] = useState<string | null>(null);
 
   // ── Sidebar state ──
   const [sidebarConfig, setSidebarConfig] = useState<SidebarConfig>(() => parseSidebarConfig(sidebarConfigRaw));
@@ -243,6 +271,28 @@ export default function SettingsPageClient({
     if (result?.error) setPasswordError(result.error);
     if (result?.success) setPasswordSuccess(result.success);
     setPasswordPending(false);
+  }
+
+  async function handleGenerateSlug() {
+    if (!name || !partnerName) return;
+    const slug = await generateSlug(name, partnerName);
+    setWsSlug(slug);
+  }
+
+  async function handleWebsiteSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setWsPending(true); setWsError(null); setWsSuccess(null);
+    const fd = new FormData();
+    fd.set("projectId", projectId);
+    fd.set("slug", wsSlug);
+    if (wsIsPublic) fd.set("isPublicWebsite", "on");
+    fd.set("websiteStory", wsStory);
+    fd.set("websiteAccommodation", wsAccommodation);
+    fd.set("websiteHeroImage", wsHeroImage);
+    const result = await updateWebsiteSettings(fd);
+    if (result?.error) setWsError(result.error);
+    if (result?.success) setWsSuccess("Webseiten-Einstellungen gespeichert!");
+    setWsPending(false);
   }
 
   function togglePageVisibility(href: string) {
@@ -479,6 +529,139 @@ export default function SettingsPageClient({
               <CardFooter>
                 <Button type="submit" variant="primary" size="lg" disabled={weddingPending}>
                   {weddingPending ? "Wird gespeichert..." : "Änderungen speichern"}
+                </Button>
+              </CardFooter>
+            </form>
+          </Card>
+        )}
+
+        {/* ════════════════════════════════════════════
+            WEBSEITE TAB
+            ════════════════════════════════════════════ */}
+        {activeTab === "website" && (
+          <Card padding="lg">
+            <SectionHeader
+              icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>}
+              title="Hochzeitswebseite"
+              description="Eure öffentliche Webseite für Gäste"
+            />
+            <form onSubmit={handleWebsiteSubmit} className="space-y-6">
+              {/* Slug */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-text mb-3">URL der Webseite</h3>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex items-center border border-border rounded-xl overflow-hidden bg-surface-input">
+                    <span className="px-3 text-sm text-text-faint bg-surface-2 border-r border-border py-2.5 whitespace-nowrap">
+                      marrybetter.vercel.app/w/
+                    </span>
+                    <input
+                      type="text"
+                      value={wsSlug}
+                      onChange={(e) => setWsSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"))}
+                      placeholder="euer-slug"
+                      className="flex-1 px-3 py-2.5 text-sm text-text bg-transparent focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSlug}
+                    className="px-3 py-2.5 text-[13px] text-text-muted hover:text-text bg-surface-2 border border-border rounded-xl hover:bg-surface-2/80 transition-colors whitespace-nowrap"
+                  >
+                    Generieren
+                  </button>
+                </div>
+                {wsSlug && wsSlug.length >= 3 && (
+                  <p className="text-[11px] text-text-faint mt-1.5">
+                    Vorschau:{" "}
+                    <a
+                      href={`/w/${wsSlug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary-600 hover:underline"
+                    >
+                      marrybetter.vercel.app/w/{wsSlug}
+                    </a>
+                  </p>
+                )}
+              </div>
+
+              {/* Public Toggle */}
+              <div className="flex items-center justify-between p-4 bg-surface-2 rounded-xl">
+                <div>
+                  <div className="text-[13px] font-semibold text-text">Webseite öffentlich</div>
+                  <div className="text-[11px] text-text-faint mt-0.5">Wenn aktiviert, ist die Webseite für alle mit dem Link sichtbar</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setWsIsPublic(!wsIsPublic)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                    wsIsPublic ? "bg-primary-600" : "bg-surface-2 border border-border"
+                  }`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-surface-1 shadow-sm transition-transform duration-200 ${
+                    wsIsPublic ? "translate-x-5.5" : "translate-x-1"
+                  }`} />
+                </button>
+              </div>
+
+              {/* Hero Image URL */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-text mb-3">Hero-Bild</h3>
+                <Input
+                  id="websiteHeroImage"
+                  name="websiteHeroImage"
+                  type="url"
+                  label="Bild-URL"
+                  value={wsHeroImage}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setWsHeroImage(e.target.value)}
+                  placeholder="https://example.com/hero.jpg"
+                />
+                <p className="text-[11px] text-text-faint mt-1.5">URL zu einem großen Hintergrundbild für den Hero-Bereich</p>
+                {wsHeroImage && (
+                  <div className="mt-3 rounded-xl overflow-hidden border border-border aspect-[3/1]">
+                    <img src={wsHeroImage} alt="Hero-Vorschau" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              {/* Story */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-text mb-3">Eure Geschichte</h3>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="websiteStory" className="text-sm font-medium text-text">Text</label>
+                  <span className="text-[11px] text-text-faint">{wsStory.length}/5000</span>
+                </div>
+                <textarea
+                  id="websiteStory"
+                  value={wsStory}
+                  onChange={(e) => setWsStory(e.target.value.slice(0, 5000))}
+                  placeholder="Wie habt ihr euch kennengelernt? Erzählt eure Liebesgeschichte..."
+                  rows={6}
+                  className="w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-surface-input text-text focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
+                />
+              </div>
+
+              {/* Accommodation */}
+              <div>
+                <h3 className="text-[13px] font-semibold text-text mb-3">Unterkunfts-Tipps</h3>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label htmlFor="websiteAccommodation" className="text-sm font-medium text-text">Text</label>
+                  <span className="text-[11px] text-text-faint">{wsAccommodation.length}/3000</span>
+                </div>
+                <textarea
+                  id="websiteAccommodation"
+                  value={wsAccommodation}
+                  onChange={(e) => setWsAccommodation(e.target.value.slice(0, 3000))}
+                  placeholder="Empfehlungen für Hotels, Pensionen oder Ferienwohnungen in der Nähe..."
+                  rows={4}
+                  className="w-full px-3 py-2.5 text-sm border border-border rounded-xl bg-surface-input text-text focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all resize-none"
+                />
+              </div>
+
+              <FeedbackMessage error={wsError} success={wsSuccess} />
+              <CardFooter>
+                <Button type="submit" variant="primary" size="lg" disabled={wsPending}>
+                  {wsPending ? "Wird gespeichert..." : "Webseite speichern"}
                 </Button>
               </CardFooter>
             </form>
