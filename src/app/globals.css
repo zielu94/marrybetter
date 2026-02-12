@@ -1,26 +1,411 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS — Apple-inspired minimal system
+   ═══════════════════════════════════════════════════════ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ── Accent: single blue accent (Apple-style) ── */
+  --color-primary-50:  #f0f5ff;
+  --color-primary-100: #e0eaff;
+  --color-primary-200: #c7d7fe;
+  --color-primary-300: #a4bcfd;
+  --color-primary-400: #7c9cfb;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+
+  /* ── Rose: warm romantic accent ── */
+  --color-rose-50:  #fff1f2;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #fecdd3;
+  --color-rose-300: #fda4af;
+  --color-rose-400: #fb7185;
+  --color-rose-500: #f43f5e;
+  --color-rose-600: #e11d48;
+
+  /* ── Gold: warm accent ── */
+  --color-gold-50:  #fffbeb;
+  --color-gold-100: #fef3c7;
+  --color-gold-200: #fde68a;
+  --color-gold-300: #fcd34d;
+  --color-gold-400: #fbbf24;
+
+  /* ── Semantic tokens reference CSS vars (overridable by .dark) ── */
+  --color-surface:        var(--token-surface);
+  --color-surface-muted:  var(--token-surface-muted);
+  --color-surface-border: var(--token-surface-border);
+  --color-surface-1:      var(--token-surface-1);
+  --color-surface-2:      var(--token-surface-2);
+  --color-surface-input:  var(--token-surface-input);
+
+  --color-text:           var(--token-text);
+  --color-text-muted:     var(--token-text-muted);
+  --color-text-faint:     var(--token-text-faint);
+
+  --color-border:         var(--token-border);
+  --color-border-muted:   var(--token-border-muted);
+
+  /* ── Typography ── */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ═══════════════════════════════════════════════════════
+   LIGHT MODE (default) — CSS custom properties
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --token-surface:        #ffffff;
+  --token-surface-muted:  #f8f9fa;
+  --token-surface-border: #e5e7eb;
+  --token-surface-1:      #ffffff;
+  --token-surface-2:      #f9fafb;
+  --token-surface-input:  #ffffff;
+
+  --token-text:           #111827;
+  --token-text-muted:     #6b7280;
+  --token-text-faint:     #9ca3af;
+
+  --token-border:         #e5e7eb;
+  --token-border-muted:   #f3f4f6;
+}
+
+/* ═══════════════════════════════════════════════════════
+   DARK MODE OVERRIDES
+   ═══════════════════════════════════════════════════════ */
+
+.dark {
+  --token-surface:        #18181b;
+  --token-surface-muted:  #0f0f12;
+  --token-surface-border: #27272a;
+  --token-surface-1:      #1e1e22;
+  --token-surface-2:      #27272a;
+  --token-surface-input:  #27272a;
+
+  --token-text:           #f4f4f5;
+  --token-text-muted:     #a1a1aa;
+  --token-text-faint:     #71717a;
+
+  --token-border:         #3f3f46;
+  --token-border-muted:   #27272a;
+
+  color-scheme: dark;
+}
+
+/* ═══════════════════════════════════════════════════════
+   BASE STYLES
+   ═══════════════════════════════════════════════════════ */
+
+body {
+  background: var(--color-surface-muted);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+  line-height: 1.47;
+  letter-spacing: -0.022em;
+}
+
+.dark ::selection {
+  background: var(--color-primary-700);
+  color: var(--color-text);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
+/* Selection */
+::selection {
+  background: var(--color-primary-200);
+  color: #1d1d1f;
+}
+
+/* Scrollbar — minimal */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT STYLES (shared)
+   ═══════════════════════════════════════════════════════ */
+
+@media print {
+  .no-print,
+  .no-print * {
+    display: none !important;
+  }
+  .no-print-flex {
+    display: block !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Default: landscape (seating plan) */
+  @page {
+    margin: 1cm;
+    size: A4 landscape;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ═══════════════════════════════════════════════════════
+   SCHEDULE PRINT VIEW — A4 Portrait
+   ═══════════════════════════════════════════════════════ */
+
+/* Screen preview styles */
+.print-view {
+  max-width: 210mm;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+  color: #1a1a1a;
+  line-height: 1.5;
+}
+
+.print-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.print-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.print-couple {
+  font-size: 15px;
+  color: #4b5563;
+  margin: 0.25rem 0 0;
+}
+
+.print-date {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0.25rem 0 0;
+}
+
+.print-location {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0.25rem 0 0;
+}
+
+.print-timestamp {
+  font-size: 11px;
+  color: #9ca3af;
+  margin: 0.75rem 0 0;
+}
+
+/* Day sections */
+.print-day-section {
+  margin-bottom: 1.5rem;
+}
+
+.print-day-heading {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 0.5rem 0;
+  margin: 0 0 0.5rem;
+  border-bottom: 2px solid #111;
+}
+
+.print-day-date {
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.print-empty {
+  font-size: 13px;
+  color: #9ca3af;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* Event table */
+.print-event-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.print-event-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.print-event-row:last-child {
+  border-bottom: none;
+}
+
+.print-time-cell {
+  width: 80px;
+  padding: 0.5rem 0.75rem 0.5rem 0;
+  vertical-align: top;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.print-start-time {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-end-time {
+  font-size: 12px;
+  color: #9ca3af;
+  font-variant-numeric: tabular-nums;
+}
+
+.print-duration {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.print-content-cell {
+  padding: 0.5rem 0;
+  vertical-align: top;
+}
+
+.print-event-title {
+  font-size: 14px;
+  font-weight: 600;
+  display: inline;
+}
+
+.print-conflict-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  padding: 0 4px;
+  border-radius: 3px;
+  margin-left: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+}
+
+.print-event-location {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.print-event-owner {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 1px;
+}
+
+.print-event-notes {
+  display: block;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Vendor contacts table */
+.print-vendors-section {
+  margin-top: 2rem;
+}
+
+.print-vendor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.print-vendor-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.print-vendor-table td {
+  padding: 0.4rem 0.5rem 0.4rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: top;
+}
+
+/* Footer — hidden on screen, shown in print */
+.print-footer {
+  display: none;
+}
+
+/* ── Print overrides (A4 portrait via Named Page) ── */
+@media print {
+  .print-view {
+    max-width: none;
+    padding: 0;
+    margin: 0;
+    page: schedule-print;
+  }
+
+  @page schedule-print {
+    size: A4 portrait;
+    margin: 15mm 12mm;
+  }
+
+  .print-footer {
+    display: block;
+    text-align: center;
+    font-size: 10px;
+    color: #9ca3af;
+    padding: 12px 0 0;
+    margin-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .print-header {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .print-event-row {
+    break-inside: avoid;
+  }
+
+  .print-day-heading {
+    break-after: avoid;
+  }
+
+  .print-vendors-section {
+    break-inside: auto;
+  }
 }
