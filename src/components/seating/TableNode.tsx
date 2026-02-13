@@ -203,24 +203,29 @@ export default function TableNode({
         const isOccupied = !!guestInSeat;
         const isHovered = hoverSeat === seatNum;
 
+        // Build initials from guest name (e.g. "Max Mustermann" → "MM")
+        const initials = guestInSeat
+          ? (guestInSeat.firstName[0] + (guestInSeat.lastName[0] || "")).toUpperCase()
+          : "";
+
         return (
           <div
             key={i}
-            className={`absolute w-5 h-5 rounded-full border-2 flex items-center justify-center text-[8px] font-bold transition-all cursor-default
+            className={`absolute rounded-full border-2 flex items-center justify-center font-bold transition-all cursor-default
               ${isOccupied
-                ? "bg-primary-400 border-primary-500 text-white"
+                ? "w-6 h-6 text-[7px] bg-primary-400 border-primary-500 text-white"
                 : isHovered
-                  ? "bg-blue-200 border-blue-400 text-blue-700 scale-125"
-                  : "bg-surface-1 border-border text-text-faint hover:border-primary-300 hover:text-primary-500"
+                  ? "w-5 h-5 text-[8px] bg-blue-200 border-blue-400 text-blue-700 scale-125"
+                  : "w-5 h-5 text-[8px] bg-surface-1 border-border text-text-faint hover:border-primary-300 hover:text-primary-500"
               }
             `}
-            style={{ left: cx - 10, top: cy - 10 }}
+            style={{ left: cx - (isOccupied ? 12 : 10), top: cy - (isOccupied ? 12 : 10) }}
             title={isOccupied ? `${seatNum}: ${guestInSeat.firstName} ${guestInSeat.lastName}` : `Platz ${seatNum}`}
             onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setHoverSeat(seatNum); }}
             onDragLeave={() => setHoverSeat(null)}
             onDrop={(e) => handleSeatDrop(e, seatNum)}
           >
-            {seatNum}
+            {isOccupied ? initials : seatNum}
           </div>
         );
       })}

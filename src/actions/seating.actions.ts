@@ -236,6 +236,14 @@ export async function createRoomItem(formData: FormData) {
     STAGE: { width: 200, height: 100 },
     DJ_BOOTH: { width: 100, height: 60 },
     ENTRANCE: { width: 80, height: 40 },
+    BUFFET: { width: 180, height: 80 },
+    TOILET: { width: 80, height: 60 },
+    GARDEN: { width: 160, height: 160 },
+    SEATING_AREA: { width: 120, height: 80 },
+    PARKING: { width: 160, height: 120 },
+    WALL: { width: 200, height: 20 },
+    DOOR: { width: 60, height: 20 },
+    WARDROBE: { width: 120, height: 60 },
     OTHER: { width: 100, height: 100 },
   };
   const dims = defaults[itemType] || defaults.OTHER;

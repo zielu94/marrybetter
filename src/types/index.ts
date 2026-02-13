@@ -242,7 +242,7 @@ export const HONEYMOON_STATUS_LABELS: Record<HoneymoonStatus, string> = {
 
 // Seating Chart Builder
 export type TableShape = "ROUND" | "RECT" | "LONG";
-export type RoomItemType = "BAR" | "DANCE_FLOOR" | "CAKE_TABLE" | "STAGE" | "DJ_BOOTH" | "ENTRANCE" | "OTHER";
+export type RoomItemType = "BAR" | "DANCE_FLOOR" | "CAKE_TABLE" | "STAGE" | "DJ_BOOTH" | "ENTRANCE" | "BUFFET" | "TOILET" | "GARDEN" | "SEATING_AREA" | "PARKING" | "WALL" | "DOOR" | "WARDROBE" | "OTHER";
 
 export const TABLE_SHAPE_LABELS: Record<TableShape, string> = {
   ROUND: "Rund",
@@ -263,6 +263,14 @@ export const ROOM_ITEM_TYPE_LABELS: Record<RoomItemType, string> = {
   STAGE: "Bühne",
   DJ_BOOTH: "DJ-Pult",
   ENTRANCE: "Eingang",
+  BUFFET: "Büffet",
+  TOILET: "Toilette",
+  GARDEN: "Garten",
+  SEATING_AREA: "Sitzmöglichkeit",
+  PARKING: "Parkplatz",
+  WALL: "Wand",
+  DOOR: "Tür",
+  WARDROBE: "Garderobe",
   OTHER: "Sonstiges",
 };
 
@@ -273,6 +281,14 @@ export const ROOM_ITEM_TYPE_ICONS: Record<RoomItemType, string> = {
   STAGE: "\uD83C\uDFA4",
   DJ_BOOTH: "\uD83C\uDFA7",
   ENTRANCE: "\uD83D\uDEAA",
+  BUFFET: "\uD83C\uDF7D\uFE0F",
+  TOILET: "\uD83D\uDEBB",
+  GARDEN: "\uD83C\uDF3F",
+  SEATING_AREA: "\uD83E\uDE91",
+  PARKING: "\uD83C\uDD7F\uFE0F",
+  WALL: "\uD83E\uDDF1",
+  DOOR: "\uD83D\uDEAA",
+  WARDROBE: "\uD83E\uDDE5",
   OTHER: "\uD83D\uDCE6",
 };
 
@@ -283,6 +299,14 @@ export const ROOM_ITEM_TYPE_DEFAULTS: Record<RoomItemType, { width: number; heig
   STAGE: { width: 200, height: 100 },
   DJ_BOOTH: { width: 100, height: 60 },
   ENTRANCE: { width: 80, height: 40 },
+  BUFFET: { width: 180, height: 80 },
+  TOILET: { width: 80, height: 60 },
+  GARDEN: { width: 160, height: 160 },
+  SEATING_AREA: { width: 120, height: 80 },
+  PARKING: { width: 160, height: 120 },
+  WALL: { width: 200, height: 20 },
+  DOOR: { width: 60, height: 20 },
+  WARDROBE: { width: 120, height: 60 },
   OTHER: { width: 100, height: 100 },
 };
 
