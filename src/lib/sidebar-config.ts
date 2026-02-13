@@ -29,6 +29,7 @@ export const CONFIGURABLE_PAGES = [
   { href: "/moodboard", name: "Moodboard" },
   { href: "/songs", name: "Songs" },
   { href: "/honeymoon", name: "Flitterwochen" },
+  { href: "/website", name: "Webseite" },
 ];
 
 export function getDefaultSidebarConfig(): SidebarConfig {
