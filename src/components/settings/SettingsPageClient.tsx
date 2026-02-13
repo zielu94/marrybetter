@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
@@ -48,6 +48,7 @@ interface SettingsPageClientProps {
   websiteStory: string;
   websiteAccommodation: string;
   websiteHeroImage: string;
+  image: string;
   supportMessages: SupportMessageData[];
 }
 
@@ -181,7 +182,7 @@ function CardFooter({ children }: { children: React.ReactNode }) {
 // ── Main Component ──────────────────────────────────
 
 export default function SettingsPageClient({
-  userId, name, partnerName, email,
+  userId, name, partnerName, email, image: initialImage,
   projectId, weddingDate, hasNoDate: initialHasNoDate, location,
   currency: initialCurrency, guestCountTarget: initialGuestCountTarget,
   sidebarConfigRaw, theme: _initialTheme,
@@ -230,6 +231,13 @@ export default function SettingsPageClient({
   const [themePending, setThemePending] = useState(false);
   const [themeSuccess, setThemeSuccess] = useState<string | null>(null);
   const [themeError, setThemeError] = useState<string | null>(null);
+
+  // ── Avatar state ──
+  const [avatarUrl, setAvatarUrl] = useState(initialImage);
+  const [avatarPending, setAvatarPending] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [avatarSuccess, setAvatarSuccess] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // ── Support state ──
   const [supportSubject, setSupportSubject] = useState("");
@@ -373,6 +381,27 @@ export default function SettingsPageClient({
     setSupportPending(false);
   }
 
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarPending(true); setAvatarError(null); setAvatarSuccess(null);
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.error) {
+        setAvatarError(data.error);
+      } else {
+        setAvatarUrl(data.url);
+        setAvatarSuccess("Profilfoto aktualisiert!");
+      }
+    } catch {
+      setAvatarError("Fehler beim Hochladen.");
+    }
+    setAvatarPending(false);
+  }
+
   // ── Render ────────────────────────────────────────
 
   return (
@@ -408,6 +437,61 @@ export default function SettingsPageClient({
             ════════════════════════════════════════════ */}
         {activeTab === "account" && (
           <>
+            {/* Profile Photo */}
+            <Card padding="lg">
+              <SectionHeader
+                icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+                title="Profilfoto"
+                description="Lade ein Foto hoch, das in der App angezeigt wird"
+              />
+              <div className="flex items-center gap-6">
+                <div className="relative group">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt="Profilbild"
+                      className="w-20 h-20 rounded-full object-cover border-2 border-border"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-primary-500 flex items-center justify-center text-white text-2xl font-bold">
+                      {name ? name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2) : "U"}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={avatarPending}
+                    className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="flex-1">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="hidden"
+                    onChange={handleAvatarUpload}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={avatarPending}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {avatarPending ? "Wird hochgeladen..." : "Foto ändern"}
+                  </Button>
+                  <p className="text-[11px] text-text-faint mt-1.5">JPG, PNG, WebP oder GIF · Max. 5 MB</p>
+                  <FeedbackMessage error={avatarError} success={avatarSuccess} />
+                </div>
+              </div>
+            </Card>
+
             {/* Personal Data */}
             <Card padding="lg">
               <SectionHeader

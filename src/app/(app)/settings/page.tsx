@@ -17,6 +17,7 @@ export default async function SettingsPage() {
       name: true,
       partnerName: true,
       email: true,
+      image: true,
     },
   });
 
@@ -49,6 +50,7 @@ export default async function SettingsPage() {
       name={user.name ?? ""}
       partnerName={user.partnerName ?? ""}
       email={user.email}
+      image={user.image ?? ""}
       projectId={project?.id ?? ""}
       weddingDate={project?.weddingDate?.toISOString().split("T")[0] ?? ""}
       hasNoDate={project?.hasNoDate ?? false}

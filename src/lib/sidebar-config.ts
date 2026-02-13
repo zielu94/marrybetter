@@ -24,7 +24,7 @@ export const CONFIGURABLE_PAGES = [
   { href: "/weddingparty", name: "Hochzeitsgesellschaft" },
   { href: "/seating", name: "Sitzplan" },
   { href: "/food", name: "Essen & Trinken" },
-  { href: "/packing", name: "Packliste" },
+  { href: "/packing", name: "Koffer" },
   { href: "/photos", name: "Fotos" },
   { href: "/moodboard", name: "Moodboard" },
   { href: "/songs", name: "Songs" },

@@ -9,9 +9,10 @@ interface AppLayoutClientProps {
   children: React.ReactNode;
   sidebarConfigRaw: string;
   theme: string;
+  userImage?: string | null;
 }
 
-function AppLayoutContent({ children }: { children: React.ReactNode }) {
+function AppLayoutContent({ children, userImage }: { children: React.ReactNode; userImage?: string | null }) {
   const { data: session } = useSession();
   const { mobileOpen, setMobileOpen, collapsed } = useSidebar();
 
@@ -44,6 +45,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
           userName={session?.user?.name}
           partnerName={null}
           weddingDate={null}
+          userImage={userImage}
         />
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
@@ -51,11 +53,11 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function AppLayoutClient({ children, sidebarConfigRaw, theme }: AppLayoutClientProps) {
+export default function AppLayoutClient({ children, sidebarConfigRaw, theme, userImage }: AppLayoutClientProps) {
   return (
     <ThemeProvider theme={theme}>
       <SidebarProvider sidebarConfigRaw={sidebarConfigRaw}>
-        <AppLayoutContent>{children}</AppLayoutContent>
+        <AppLayoutContent userImage={userImage}>{children}</AppLayoutContent>
       </SidebarProvider>
     </ThemeProvider>
   );

@@ -8,12 +8,14 @@ interface TopbarProps {
   userName?: string | null;
   partnerName?: string | null;
   weddingDate?: Date | null;
+  userImage?: string | null;
 }
 
 export default function Topbar({
   userName,
   partnerName,
   weddingDate,
+  userImage,
 }: TopbarProps) {
   const { setMobileOpen } = useSidebar();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -76,9 +78,13 @@ export default function Topbar({
       <div className="relative">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-colors"
+          className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-500 text-white text-xs font-semibold hover:bg-primary-600 transition-colors overflow-hidden"
         >
-          {initials}
+          {userImage ? (
+            <img src={userImage} alt="Profil" className="w-full h-full object-cover" />
+          ) : (
+            initials
+          )}
         </button>
 
         {dropdownOpen && (
