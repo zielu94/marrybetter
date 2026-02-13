@@ -5,6 +5,30 @@ import FoodPageClient from "@/components/food/FoodPageClient";
 
 export const metadata = { title: "Essen & Trinken | MarryBetter.com" };
 
+// Categories that are considered "drinks" — everything else is "food"
+const DRINK_CATEGORY_NAMES = new Set([
+  "getränke",
+  "drinks",
+  "sekt",
+  "sekt / empfang",
+  "wein",
+  "wein (weiß)",
+  "wein (rot)",
+  "bier",
+  "softdrinks",
+  "softdrinks / wasser",
+  "cocktails",
+  "cocktails / spirituosen",
+  "kaffee / tee",
+  "spirituosen",
+  "longdrinks",
+  "heißgetränke",
+]);
+
+function isDrinkCategory(name: string) {
+  return DRINK_CATEGORY_NAMES.has(name.toLowerCase().trim());
+}
+
 export default async function FoodPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
@@ -24,21 +48,32 @@ export default async function FoodPage() {
     seatingTableName: g.seatingTable?.name ?? null,
   }));
 
-  const drinkCategories = project.foodCategories.map((cat) => ({
+  const mapCategory = (cat: (typeof project.foodCategories)[number]) => ({
     id: cat.id,
     name: cat.name,
     items: cat.items.map((item) => ({
       id: item.id,
       name: item.name,
       quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      totalPrice: item.totalPrice,
       notes: item.notes,
     })),
-  }));
+  });
+
+  const foodCategories = project.foodCategories
+    .filter((cat) => !isDrinkCategory(cat.name))
+    .map(mapCategory);
+
+  const drinkCategories = project.foodCategories
+    .filter((cat) => isDrinkCategory(cat.name))
+    .map(mapCategory);
 
   return (
     <FoodPageClient
       projectId={project.id}
       guests={guests}
+      foodCategories={foodCategories}
       drinkCategories={drinkCategories}
     />
   );

@@ -6,9 +6,10 @@ import BudgetCategoryForm from "./BudgetCategoryForm";
 
 interface BudgetPageClientProps {
   projectId: string;
+  existingCategoryNames: string[];
 }
 
-export default function BudgetPageClient({ projectId }: BudgetPageClientProps) {
+export default function BudgetPageClient({ projectId, existingCategoryNames }: BudgetPageClientProps) {
   const [showForm, setShowForm] = useState(false);
 
   return (
@@ -23,7 +24,11 @@ export default function BudgetPageClient({ projectId }: BudgetPageClientProps) {
         Kategorie
       </button>
       <Modal open={showForm} onClose={() => setShowForm(false)} title="Neue Kategorie">
-        <BudgetCategoryForm projectId={projectId} onClose={() => setShowForm(false)} />
+        <BudgetCategoryForm
+          projectId={projectId}
+          existingCategoryNames={existingCategoryNames}
+          onClose={() => setShowForm(false)}
+        />
       </Modal>
     </>
   );

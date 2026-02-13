@@ -58,7 +58,7 @@ export default async function BudgetPage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-[15px] font-semibold text-text">Kategorien</h2>
-          <BudgetPageClient projectId={project.id} />
+          <BudgetPageClient projectId={project.id} existingCategoryNames={project.budgetCategories.map(c => c.name)} />
         </div>
 
         {project.budgetCategories.length > 0 ? (

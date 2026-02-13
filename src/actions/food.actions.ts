@@ -99,7 +99,7 @@ export async function deleteFoodCategory(formData: FormData) {
   revalidatePath("/food");
 }
 
-// ── Drink Item CRUD ──────────────────────────────
+// ── Food/Drink Item CRUD ──────────────────────────────
 
 export async function createFoodItem(formData: FormData) {
   const foodCategoryId = formData.get("foodCategoryId") as string;
@@ -107,8 +107,12 @@ export async function createFoodItem(formData: FormData) {
   if (!foodCategoryId || !name) return;
 
   const quantityStr = formData.get("quantity") as string;
+  const unitPriceStr = formData.get("unitPrice") as string;
+  const totalPriceStr = formData.get("totalPrice") as string;
   const notes = (formData.get("notes") as string) || undefined;
   const quantity = quantityStr ? parseInt(quantityStr) : undefined;
+  const unitPrice = unitPriceStr ? parseFloat(unitPriceStr) : undefined;
+  const totalPrice = totalPriceStr ? parseFloat(totalPriceStr) : undefined;
 
   const count = await prisma.foodItem.count({ where: { foodCategoryId } });
 
@@ -117,6 +121,8 @@ export async function createFoodItem(formData: FormData) {
       foodCategoryId,
       name,
       quantity: quantity && !isNaN(quantity) ? quantity : undefined,
+      unitPrice: unitPrice && !isNaN(unitPrice) ? unitPrice : undefined,
+      totalPrice: totalPrice && !isNaN(totalPrice) ? totalPrice : undefined,
       notes,
       sortOrder: count,
     },
@@ -130,15 +136,21 @@ export async function updateFoodItem(formData: FormData) {
 
   const name = formData.get("name") as string;
   const quantityStr = formData.get("quantity") as string;
+  const unitPriceStr = formData.get("unitPrice") as string;
+  const totalPriceStr = formData.get("totalPrice") as string;
   const notes = formData.get("notes") as string;
 
   const quantity = quantityStr ? parseInt(quantityStr) : null;
+  const unitPrice = unitPriceStr ? parseFloat(unitPriceStr) : null;
+  const totalPrice = totalPriceStr ? parseFloat(totalPriceStr) : null;
 
   await prisma.foodItem.update({
     where: { id },
     data: {
       ...(name && { name }),
       ...(quantityStr !== undefined && { quantity: quantity && !isNaN(quantity) ? quantity : null }),
+      ...(unitPriceStr !== undefined && { unitPrice: unitPrice && !isNaN(unitPrice) ? unitPrice : null }),
+      ...(totalPriceStr !== undefined && { totalPrice: totalPrice && !isNaN(totalPrice) ? totalPrice : null }),
       ...(notes !== undefined && { notes: notes || null }),
     },
   });
