@@ -352,6 +352,49 @@ export const DEFAULT_BUDGET_CATEGORIES = [
   "Sonstiges",
 ];
 
+// Default packing items for new accounts
+export const DEFAULT_PACKING_ITEMS_WEDDING: string[] = [
+  "Eheringe",
+  "Brautkleid / Anzug",
+  "Schuhe (Braut)",
+  "Schuhe (Bräutigam)",
+  "Schleier / Accessoires",
+  "Notfall-Kit (Nadel, Faden, Pflaster)",
+  "Taschentücher",
+  "Lippenstift / Puder",
+  "Parfum",
+  "Manschettenknöpfe / Ansteckblume",
+  "Trauversprechen / Rede",
+  "Geschenke für Trauzeugen",
+  "Gästebuch & Stifte",
+  "Tischnummern / Platzkarten",
+];
+
+export const DEFAULT_PACKING_ITEMS_HONEYMOON: string[] = [
+  "Reisepässe / Ausweise",
+  "Flugtickets / Buchungsbestätigungen",
+  "Reiseversicherung",
+  "Sonnencreme",
+  "Medikamente / Reiseapotheke",
+  "Ladegeräte / Adapter",
+];
+
+// Default schedule for wedding day
+export const DEFAULT_SCHEDULE_EVENTS = [
+  { title: "Getting Ready Braut", startTime: "09:00", endTime: "12:00", owner: "Braut" },
+  { title: "Getting Ready Bräutigam", startTime: "10:00", endTime: "12:00", owner: "Braeutigam" },
+  { title: "First Look / Paarshooting", startTime: "12:30", endTime: "13:30", owner: "Braut" },
+  { title: "Standesamtliche Trauung", startTime: "14:00", endTime: "14:45" },
+  { title: "Sektempfang", startTime: "15:00", endTime: "16:00" },
+  { title: "Freie Trauung / Zeremonie", startTime: "16:00", endTime: "17:00" },
+  { title: "Gruppenfoto", startTime: "17:00", endTime: "17:30" },
+  { title: "Abendessen", startTime: "18:00", endTime: "20:00" },
+  { title: "Eröffnungstanz", startTime: "20:00", endTime: "20:15" },
+  { title: "Hochzeitstorte anschneiden", startTime: "21:00", endTime: "21:15" },
+  { title: "Party & Tanz", startTime: "21:15", endTime: "02:00" },
+  { title: "Mitternachtssnack", startTime: "00:00", endTime: "00:30" },
+];
+
 export const DEFAULT_TASK_TEMPLATES = [
   { title: "Budget festlegen", monthsBefore: 12, priority: "HIGH", category: "Planung" },
   { title: "Gästeliste erstellen", monthsBefore: 12, priority: "HIGH", category: "Gäste" },
