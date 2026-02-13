@@ -545,6 +545,21 @@ export default function SettingsPageClient({
               title="Hochzeitswebseite"
               description="Eure öffentliche Webseite für Gäste"
             />
+            {/* Info Box */}
+            <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-500/10 rounded-xl p-4 mb-6">
+              <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="text-[13px] text-blue-700 dark:text-blue-400">
+                <p className="font-medium mb-1">Daten aus anderen Modulen:</p>
+                <ul className="text-[12px] space-y-0.5 text-blue-600 dark:text-blue-400/80">
+                  <li>• <strong>Datum & Ort</strong> → Hochzeitsdetails-Tab</li>
+                  <li>• <strong>Tagesablauf</strong> → Tagesablauf-Modul (Sidebar)</li>
+                  <li>• <strong>Galerie</strong> → Fotos & Moodboard-Module</li>
+                </ul>
+              </div>
+            </div>
+
             <form onSubmit={handleWebsiteSubmit} className="space-y-6">
               {/* Slug */}
               <div>
@@ -599,7 +614,7 @@ export default function SettingsPageClient({
                   }`}
                 >
                   <span className={`inline-block h-4 w-4 transform rounded-full bg-surface-1 shadow-sm transition-transform duration-200 ${
-                    wsIsPublic ? "translate-x-5.5" : "translate-x-1"
+                    wsIsPublic ? "translate-x-[22px]" : "translate-x-1"
                   }`} />
                 </button>
               </div>
