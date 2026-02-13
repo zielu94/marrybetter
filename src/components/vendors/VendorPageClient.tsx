@@ -54,15 +54,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 const COLUMN_COLORS: Partial<Record<VendorStatus, { dot: string; bg: string }>> = {
   BOOKED: { dot: "bg-emerald-500", bg: "bg-emerald-50" },
   NOT_CHOSEN: { dot: "bg-text-faint", bg: "bg-surface-2" },
-  SHORTLISTED: { dot: "bg-blue-500", bg: "bg-blue-50/50" },
 };
 
 const NEXT_ACTION_SUGGESTIONS: Record<string, string> = {
   IDENTIFIED: "E-Mail senden",
   CONTACTED: "Antwort abwarten",
-  MEETING_SCHEDULED: "Termin wahrnehmen",
   OFFER_RECEIVED: "Angebot prüfen",
-  SHORTLISTED: "Entscheidung treffen",
   BOOKED: "Vertrag prüfen",
   NOT_CHOSEN: "",
 };

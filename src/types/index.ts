@@ -102,9 +102,7 @@ export type VendorCategory =
 export type VendorStatus =
   | "IDENTIFIED"
   | "CONTACTED"
-  | "MEETING_SCHEDULED"
   | "OFFER_RECEIVED"
-  | "SHORTLISTED"
   | "BOOKED"
   | "NOT_CHOSEN";
 
@@ -126,9 +124,7 @@ export const VENDOR_CATEGORY_LABELS: Record<VendorCategory, string> = {
 export const VENDOR_STATUS_LABELS: Record<VendorStatus, string> = {
   IDENTIFIED: "Entdeckt",
   CONTACTED: "Kontaktiert",
-  MEETING_SCHEDULED: "Termin vereinbart",
   OFFER_RECEIVED: "Angebot erhalten",
-  SHORTLISTED: "In der Auswahl",
   BOOKED: "Gebucht",
   NOT_CHOSEN: "Nicht gewählt",
 };
@@ -136,9 +132,7 @@ export const VENDOR_STATUS_LABELS: Record<VendorStatus, string> = {
 export const VENDOR_STATUS_ORDER: VendorStatus[] = [
   "IDENTIFIED",
   "CONTACTED",
-  "MEETING_SCHEDULED",
   "OFFER_RECEIVED",
-  "SHORTLISTED",
   "BOOKED",
   "NOT_CHOSEN",
 ];

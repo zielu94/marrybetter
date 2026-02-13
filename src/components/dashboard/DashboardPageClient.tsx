@@ -157,7 +157,7 @@ export default function DashboardPageClient({ data }: { data: DashboardData }) {
   // ── Vendor metrics ──
   const vendorsBooked = vendors.filter((v) => v.status === "OFFER_ACCEPTED").length;
   const vendorsTotal = vendors.length;
-  const vendorsNeedAction = vendors.filter((v) => v.status === "OFFER_RECEIVED" || v.status === "MEETING_SCHEDULED").length;
+  const vendorsNeedAction = vendors.filter((v) => v.status === "OFFER_RECEIVED" || v.status === "CONTACTED").length;
   const vendorBookPercent = vendorsTotal > 0 ? Math.round((vendorsBooked / vendorsTotal) * 100) : 0;
 
   // ── Budget metrics ──
@@ -526,11 +526,11 @@ export default function DashboardPageClient({ data }: { data: DashboardData }) {
               <div className="pt-3 border-t border-border space-y-2">
                 {vendors.slice(0, 3).map((v) => {
                   const statusMap: Record<string, { label: string; color: string }> = {
-                    IDENTIFIED: { label: "Identifiziert", color: "text-text-faint" },
+                    IDENTIFIED: { label: "Entdeckt", color: "text-text-faint" },
                     CONTACTED: { label: "Kontaktiert", color: "text-blue-500" },
-                    MEETING_SCHEDULED: { label: "Termin", color: "text-amber-500" },
                     OFFER_RECEIVED: { label: "Angebot", color: "text-orange-500" },
-                    OFFER_ACCEPTED: { label: "Gebucht", color: "text-emerald-500" },
+                    BOOKED: { label: "Gebucht", color: "text-emerald-500" },
+                    NOT_CHOSEN: { label: "Nicht gewählt", color: "text-text-faint" },
                   };
                   const st = statusMap[v.status] || { label: v.status, color: "text-text-faint" };
                   return (
