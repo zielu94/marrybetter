@@ -8,6 +8,39 @@ import { LoginSchema } from "@/lib/validations";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   session: { strategy: "jwt" },
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt({ token, user }) {
+      // On initial sign-in, copy user fields
+      if (user) {
+        token.onboarded = user.onboarded;
+        token.role = user.role || "COUPLE";
+      }
+
+      // Always refresh onboarded + role from DB so changes
+      // (e.g. after onboarding completes) take effect immediately
+      if (token.sub) {
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { onboarded: true, role: true },
+        });
+        if (dbUser) {
+          token.onboarded = dbUser.onboarded;
+          token.role = dbUser.role || "COUPLE";
+        }
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (token.sub) {
+        session.user.id = token.sub;
+        session.user.onboarded = token.onboarded as boolean;
+        session.user.role = (token.role as string) || "COUPLE";
+      }
+      return session;
+    },
+  },
   providers: [
     Credentials({
       async authorize(credentials) {

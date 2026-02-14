@@ -127,8 +127,12 @@ export async function completeOnboarding(formData: FormData) {
   const parsedDate = weddingDate && !hasNoDate ? new Date(weddingDate) : null;
 
   // Check if already onboarded (prevent double-submit)
-  const existingProject = await prisma.weddingProject.findFirst({ where: { userId } });
-  if (existingProject) {
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { onboarded: true, role: true },
+  });
+  if (existingUser?.onboarded) {
+    if (existingUser.role === "PLANNER") redirect("/planner");
     redirect("/dashboard");
   }
 
