@@ -100,12 +100,19 @@ function generateSlugFromNames(name: string, partnerName: string): string {
 }
 
 export async function completeOnboarding(formData: FormData) {
+  const role = (formData.get("role") as string) || "COUPLE";
+
   const rawData = {
     name: formData.get("name") as string,
-    partnerName: formData.get("partnerName") as string,
+    partnerName: (formData.get("partnerName") as string) || "",
     weddingDate: formData.get("weddingDate") as string || undefined,
     hasNoDate: formData.get("hasNoDate") === "on",
   };
+
+  // For couples, partnerName is required
+  if (role === "COUPLE" && !rawData.partnerName) {
+    return { error: "Name des Partners ist erforderlich" };
+  }
 
   const validated = OnboardingSchema.safeParse(rawData);
   if (!validated.success) {
@@ -124,8 +131,6 @@ export async function completeOnboarding(formData: FormData) {
   if (existingProject) {
     redirect("/dashboard");
   }
-
-  const role = (formData.get("role") as string) || "COUPLE";
 
   await prisma.user.update({
     where: { id: userId },

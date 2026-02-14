@@ -16,7 +16,7 @@ export const RegisterSchema = z.object({
 
 export const OnboardingSchema = z.object({
   name: z.string().min(1, "Name ist erforderlich"),
-  partnerName: z.string().min(1, "Name des Partners ist erforderlich"),
+  partnerName: z.string().optional().default(""),
   weddingDate: z.string().optional(),
   hasNoDate: z.boolean().default(false),
 });
