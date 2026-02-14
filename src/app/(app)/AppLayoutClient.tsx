@@ -10,9 +10,21 @@ interface AppLayoutClientProps {
   sidebarConfigRaw: string;
   theme: string;
   userImage?: string | null;
+  userRole?: string;
+  projectCoupleName?: string | null;
 }
 
-function AppLayoutContent({ children, userImage }: { children: React.ReactNode; userImage?: string | null }) {
+function AppLayoutContent({
+  children,
+  userImage,
+  userRole,
+  projectCoupleName,
+}: {
+  children: React.ReactNode;
+  userImage?: string | null;
+  userRole?: string;
+  projectCoupleName?: string | null;
+}) {
   const { data: session } = useSession();
   const { mobileOpen, setMobileOpen, collapsed } = useSidebar();
 
@@ -23,7 +35,7 @@ function AppLayoutContent({ children, userImage }: { children: React.ReactNode; 
     <div className="min-h-screen flex bg-surface-muted">
       {/* Desktop sidebar */}
       <aside className={`hidden lg:block ${sidebarWidth} fixed inset-y-0 left-0 z-10 transition-all duration-200 ease-in-out overflow-visible`}>
-        <Sidebar collapsed={collapsed} />
+        <Sidebar collapsed={collapsed} userRole={userRole} />
       </aside>
 
       {/* Mobile sidebar overlay */}
@@ -34,7 +46,7 @@ function AppLayoutContent({ children, userImage }: { children: React.ReactNode; 
             onClick={() => setMobileOpen(false)}
           />
           <aside className="fixed inset-y-0 left-0 w-60 z-30 lg:hidden">
-            <Sidebar onClose={() => setMobileOpen(false)} />
+            <Sidebar onClose={() => setMobileOpen(false)} userRole={userRole} />
           </aside>
         </>
       )}
@@ -46,6 +58,8 @@ function AppLayoutContent({ children, userImage }: { children: React.ReactNode; 
           partnerName={null}
           weddingDate={null}
           userImage={userImage}
+          userRole={userRole}
+          projectCoupleName={projectCoupleName}
         />
         <main className="flex-1 p-6 overflow-auto">{children}</main>
       </div>
@@ -53,11 +67,24 @@ function AppLayoutContent({ children, userImage }: { children: React.ReactNode; 
   );
 }
 
-export default function AppLayoutClient({ children, sidebarConfigRaw, theme, userImage }: AppLayoutClientProps) {
+export default function AppLayoutClient({
+  children,
+  sidebarConfigRaw,
+  theme,
+  userImage,
+  userRole,
+  projectCoupleName,
+}: AppLayoutClientProps) {
   return (
     <ThemeProvider theme={theme}>
       <SidebarProvider sidebarConfigRaw={sidebarConfigRaw}>
-        <AppLayoutContent userImage={userImage}>{children}</AppLayoutContent>
+        <AppLayoutContent
+          userImage={userImage}
+          userRole={userRole}
+          projectCoupleName={projectCoupleName}
+        >
+          {children}
+        </AppLayoutContent>
       </SidebarProvider>
     </ThemeProvider>
   );

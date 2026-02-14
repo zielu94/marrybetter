@@ -10,6 +10,7 @@ export default {
     async jwt({ token, user }) {
       if (user) {
         token.onboarded = user.onboarded;
+        token.role = user.role || "COUPLE";
       }
       return token;
     },
@@ -17,6 +18,7 @@ export default {
       if (token.sub) {
         session.user.id = token.sub;
         session.user.onboarded = token.onboarded as boolean;
+        session.user.role = (token.role as string) || "COUPLE";
       }
       return session;
     },

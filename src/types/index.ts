@@ -1,3 +1,11 @@
+// User roles
+export type UserRole = "COUPLE" | "PLANNER";
+
+export const USER_ROLE_LABELS: Record<UserRole, string> = {
+  COUPLE: "Paar",
+  PLANNER: "Hochzeitsplaner",
+};
+
 export type PaymentStatus = "UNPAID" | "DEPOSIT_PAID" | "PARTIALLY_PAID" | "FULLY_PAID";
 export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
 export type TaskStatus = "OPEN" | "IN_PROGRESS" | "DONE";

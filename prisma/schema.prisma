@@ -11,20 +11,22 @@ datasource db {
 // ============================================
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  name          String?
-  partnerName   String?
-  image         String?
-  onboarded     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  email           String    @unique
+  password        String
+  name            String?
+  partnerName     String?
+  image           String?
+  onboarded       Boolean   @default(false)
+  role            String    @default("COUPLE") // "COUPLE" | "PLANNER"
+  activeProjectId String?                      // Currently selected project (for planners)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  accounts        Account[]
-  sessions        Session[]
-  weddingProject  WeddingProject?
-  supportMessages SupportMessage[]
+  accounts         Account[]
+  sessions         Session[]
+  weddingProjects  WeddingProject[]
+  supportMessages  SupportMessage[]
 }
 
 model Account {
@@ -61,7 +63,7 @@ model Session {
 
 model WeddingProject {
   id          String    @id @default(cuid())
-  userId      String    @unique
+  userId      String
   weddingDate DateTime?
   hasNoDate   Boolean   @default(false)
   location    String?
@@ -70,6 +72,11 @@ model WeddingProject {
   guestCountTarget Int       @default(0)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+
+  // Planner metadata
+  coupleName    String?   // e.g. "Max & Anna" — for planner overview
+  coupleEmail   String?   // Couple contact email
+  notes         String?   // Planner notes
 
   pinterestBoardUrl        String?
   pinterestEmbedEnabled    Boolean   @default(true)

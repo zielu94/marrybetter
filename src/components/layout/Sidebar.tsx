@@ -403,9 +403,10 @@ const navigationItems = [
 interface SidebarProps {
   onClose?: () => void;
   collapsed?: boolean;
+  userRole?: string;
 }
 
-export default function Sidebar({ onClose, collapsed = false }: SidebarProps) {
+export default function Sidebar({ onClose, collapsed = false, userRole }: SidebarProps) {
   const pathname = usePathname();
   const { toggleCollapsed, sidebarConfig } = useSidebar();
 
@@ -465,6 +466,26 @@ export default function Sidebar({ onClose, collapsed = false }: SidebarProps) {
 
       {/* Navigation */}
       <nav className={cn("flex-1 py-3 space-y-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", collapsed ? "px-1.5" : "px-3")}>
+        {/* Planner: "Übersicht" link */}
+        {userRole === "PLANNER" && (
+          <Link
+            href="/planner"
+            onClick={onClose}
+            title={collapsed ? "Übersicht" : undefined}
+            className={cn(
+              "flex items-center text-[13px] font-medium rounded-lg transition-colors duration-150 mb-1",
+              collapsed ? "justify-center p-2" : "gap-2.5 px-3 py-2",
+              pathname === "/planner"
+                ? "bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400"
+                : "text-text-muted hover:bg-surface-2 hover:text-text"
+            )}
+          >
+            <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+            {!collapsed && <span>Übersicht</span>}
+          </Link>
+        )}
         {filteredNavItems.map((item) => {
           const isActive = pathname === item.href;
           return (

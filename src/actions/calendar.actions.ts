@@ -1,12 +1,15 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { resolveProjectId } from "@/lib/project-context";
 
 // ── Data Fetching ──────────────────────────────────
 
 export async function getCalendarData(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   const project = await prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       tasks: {
         where: { dueDate: { not: null } },

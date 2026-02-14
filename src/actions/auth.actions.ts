@@ -79,6 +79,10 @@ export async function login(formData: FormData) {
 
   const user = await prisma.user.findUnique({ where: { email } });
   if (user?.onboarded) {
+    // Planners go to planner dashboard, couples to regular dashboard
+    if (user.role === "PLANNER") {
+      redirect("/planner");
+    }
     redirect("/dashboard");
   } else {
     redirect("/onboarding");
@@ -116,19 +120,59 @@ export async function completeOnboarding(formData: FormData) {
   const parsedDate = weddingDate && !hasNoDate ? new Date(weddingDate) : null;
 
   // Check if already onboarded (prevent double-submit)
-  const existingProject = await prisma.weddingProject.findUnique({ where: { userId } });
+  const existingProject = await prisma.weddingProject.findFirst({ where: { userId } });
   if (existingProject) {
     redirect("/dashboard");
   }
+
+  const role = (formData.get("role") as string) || "COUPLE";
 
   await prisma.user.update({
     where: { id: userId },
     data: {
       name,
-      partnerName,
+      partnerName: role === "PLANNER" ? null : partnerName,
       onboarded: true,
+      role,
     },
   });
+
+  // Planners don't get a default project during onboarding
+  if (role === "PLANNER") {
+    redirect("/planner");
+  }
+
+  const project = await seedNewProject({
+    userId,
+    name,
+    partnerName,
+    weddingDate: parsedDate,
+    hasNoDate,
+  });
+
+  // Set as active project
+  await prisma.user.update({
+    where: { id: userId },
+    data: { activeProjectId: project.id },
+  });
+
+  redirect("/dashboard");
+}
+
+/**
+ * Creates a new WeddingProject with all default seed data.
+ * Used by both couple onboarding and planner "create project" flow.
+ */
+export async function seedNewProject(params: {
+  userId: string;
+  name: string;
+  partnerName: string;
+  weddingDate: Date | null;
+  hasNoDate: boolean;
+  coupleName?: string;
+  coupleEmail?: string;
+}) {
+  const { userId, name, partnerName, weddingDate, hasNoDate, coupleName, coupleEmail } = params;
 
   // Generate slug
   let slug = generateSlugFromNames(name, partnerName);
@@ -140,9 +184,11 @@ export async function completeOnboarding(formData: FormData) {
   const project = await prisma.weddingProject.create({
     data: {
       userId,
-      weddingDate: parsedDate,
+      weddingDate,
       hasNoDate,
       slug,
+      coupleName: coupleName || `${name} & ${partnerName}`,
+      coupleEmail: coupleEmail || null,
     },
   });
 
@@ -156,9 +202,9 @@ export async function completeOnboarding(formData: FormData) {
   });
 
   // ── 2. Tasks ──
-  if (parsedDate) {
+  if (weddingDate) {
     const tasks = DEFAULT_TASK_TEMPLATES.map((template, index) => {
-      const dueDate = new Date(parsedDate);
+      const dueDate = new Date(weddingDate);
       dueDate.setMonth(dueDate.getMonth() - template.monthsBefore);
       return {
         weddingProjectId: project.id,
@@ -218,7 +264,7 @@ export async function completeOnboarding(formData: FormData) {
     data: {
       weddingProjectId: project.id,
       name: "Hochzeitstag",
-      date: parsedDate,
+      date: weddingDate,
       sortOrder: 0,
     },
   });
@@ -234,7 +280,7 @@ export async function completeOnboarding(formData: FormData) {
     })),
   });
 
-  redirect("/dashboard");
+  return project;
 }
 
 export async function logout() {

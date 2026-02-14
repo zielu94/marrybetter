@@ -11,15 +11,15 @@ async function main() {
   // Find user
   const user = await prisma.user.findUnique({
     where: { email: "rafi_zielinski@yahoo.de" },
-    include: { weddingProject: true },
+    include: { weddingProjects: true },
   });
 
-  if (!user || !user.weddingProject) {
+  if (!user || !user.weddingProjects.length) {
     console.error("User oder WeddingProject nicht gefunden!");
     return;
   }
 
-  const projectId = user.weddingProject.id;
+  const projectId = user.weddingProjects[0].id;
   console.log(`Befülle Projekt ${projectId} für ${user.name}...`);
 
   // ═══════════════════════════════════════════════

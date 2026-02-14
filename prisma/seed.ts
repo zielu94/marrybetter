@@ -21,7 +21,7 @@ async function main() {
   });
 
   // Get or create wedding project
-  let project = await prisma.weddingProject.findUnique({ where: { userId: user.id } });
+  let project = await prisma.weddingProject.findFirst({ where: { userId: user.id } });
   if (!project) {
     project = await prisma.weddingProject.create({
       data: {

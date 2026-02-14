@@ -2,10 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { resolveProjectId } from "@/lib/project-context";
 
 export async function getHoneymoonData(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   return prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       honeymoonItems: {
         orderBy: [{ date: "asc" }, { createdAt: "desc" }],

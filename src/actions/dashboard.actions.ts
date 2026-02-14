@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { resolveProjectId } from "@/lib/project-context";
 
 export async function getDashboardData(userId: string) {
   const user = await prisma.user.findUnique({
@@ -8,8 +9,11 @@ export async function getDashboardData(userId: string) {
     select: { name: true, partnerName: true },
   });
 
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
+
   const project = await prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       guests: true,
       vendors: true,

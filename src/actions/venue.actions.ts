@@ -2,12 +2,15 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { resolveProjectId } from "@/lib/project-context";
 
 // ── Data Fetching ──────────────────────────────────
 
 export async function getVenueData(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   return prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       venueOptions: {
         orderBy: { sortOrder: "asc" },

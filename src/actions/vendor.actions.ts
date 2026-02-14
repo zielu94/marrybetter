@@ -2,10 +2,13 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { resolveProjectId } from "@/lib/project-context";
 
 export async function getVendorsData(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   return prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: { vendors: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }] } },
   });
 }

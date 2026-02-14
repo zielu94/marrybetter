@@ -2,12 +2,15 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { resolveProjectId } from "@/lib/project-context";
 
 // ── Data Fetching ──────────────────────────────────
 
 export async function getGuestsData(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   return prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       guests: {
         orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
@@ -28,8 +31,10 @@ export async function getGuestsData(userId: string) {
 }
 
 export async function getProjectSlug(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   const project = await prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     select: { slug: true, isPublicWebsite: true },
   });
   return project;

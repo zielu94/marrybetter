@@ -3,12 +3,15 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { MAX_SCHEDULE_DAYS } from "@/types";
+import { resolveProjectId } from "@/lib/project-context";
 
 // ── Data Fetching ──────────────────────────────────
 
 export async function getScheduleData(userId: string) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   return prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       scheduleDays: {
         orderBy: { sortOrder: "asc" },
@@ -26,8 +29,10 @@ export async function getSchedulePrintData(
   userId: string,
   dayIds?: string[]
 ) {
+  const projectId = await resolveProjectId(userId);
+  if (!projectId) return null;
   return prisma.weddingProject.findUnique({
-    where: { userId },
+    where: { id: projectId },
     include: {
       user: { select: { name: true, partnerName: true } },
       scheduleDays: {

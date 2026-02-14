@@ -19,10 +19,10 @@ export default async function OnboardingPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-text tracking-tight">
-          Wir brauchen noch ein paar Infos
+          Willkommen bei MarryBetter
         </h1>
         <p className="mt-1 text-sm text-text-muted">
-          Damit wir deine Hochzeit perfekt planen können.
+          Sag uns, wer du bist – wir passen alles für dich an.
         </p>
       </div>
       <OnboardingForm userId={session.user.id} />
